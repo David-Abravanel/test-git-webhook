@@ -104,7 +104,13 @@ async def github_webhook(request: Request):
     try:
         # Pull latest changes
         logger.info("Pulling latest changes from repository...")
-        subprocess.run(["git", "pull", "origin", "master"], check=True)
+        subprocess.run(
+            ["git", "pull", "origin", "master"],
+            check=True,
+            cwd="/home/ubuntu/test-git-webhook",
+            capture_output=True,
+            text=True
+        )
 
         # Activate virtual environment
         venv_activate_cmd = "./venv/bin/activate" if os.name != "nt" else ".\\venv\\Scripts\\activate"
