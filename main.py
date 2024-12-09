@@ -66,6 +66,10 @@ async def github_webhook(
         logger.error("Failed to decode JSON payload")
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
+    if Q.full():
+        Q.get()
+    Q.put(payload)
+
     # Check branch
     branch = payload_data.get("ref", "")
     if branch != "refs/heads/master":
@@ -73,9 +77,6 @@ async def github_webhook(
         return {"status": f"Ignored, branch is {branch}"}
 
     # check if the queue is ave..
-    if Q.full():
-        Q.get()
-    Q.put(payload)
 
     # Execute deployment steps with comprehensive error handling
     try:
