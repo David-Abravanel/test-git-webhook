@@ -85,6 +85,9 @@ async def github_webhook(request: Request):
             ["pip", "install", "-r", "requirements.txt"], shell=True, check=True)
 
         # Restart application
+        logger.info("Stopping YOLO API service...")
+        subprocess.run(["sudo", "systemctl", "stop", "yolo_api"], check=True)
+
         logger.info("Restarting YOLO API service...")
         subprocess.run(
             ["sudo", "systemctl", "restart", "yolo_api"], check=True)
@@ -102,7 +105,7 @@ async def github_webhook(request: Request):
 
 @app.post("/test")
 async def github_webhook(request: Request):
-    return 3
+    return 4
 
 
 # if __name__ == "__main__":
