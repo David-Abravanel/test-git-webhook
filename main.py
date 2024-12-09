@@ -105,21 +105,6 @@ async def get_num(req: Request):
     return {"status": "No payload available"}
 
 
-@app.get("/david-1234")
-async def get_name():
-    return {"name": "fffffffffffff-1"}
-
-
-@app.get("/111")
-async def get_name():
-    return {"message": "hello world!!!"}
-
-
-@app.get("/112")
-async def get_name():
-    return {"message": "hello world2!!!"}
-
-
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
