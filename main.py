@@ -71,7 +71,6 @@ async def github_webhook(
         logger.info(f"Ignored webhook for branch: {branch}")
         return {"status": f"Ignored, branch is {branch}"}
 
-    global pyl
     pyl.append(payload)
 
     # Execute deployment steps with comprehensive error handling
@@ -94,7 +93,6 @@ async def github_webhook(
 
 @app.get("/test")
 async def get_num(req: Request):
-    global pyl
     return pyl.pop()
 
 # Optional: Production server configuration
