@@ -29,7 +29,6 @@ WEBHOOK_SECRET = os.getenv('GITHUB_WEBHOOK_SECRET')
 if not WEBHOOK_SECRET:
     logger.error("GitHub webhook secret is not set")
     raise ValueError("GitHub webhook secret must be configured")
-pyl = []
 
 
 @app.post("/webhook")
@@ -100,7 +99,7 @@ async def github_webhook(
 @app.get("/test")
 async def get_num(req: Request):
     if not Q.empty():
-        return {"payload": Q.get().decode("utf-8")}
+        return {"payload": Q.get()}
 
     return {"status": "No payload available"}
 
