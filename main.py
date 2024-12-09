@@ -117,7 +117,7 @@ async def get_num(req: Request):
 
 @app.get("/test-2")
 async def get_num(req: Request):
-    return {"status": "111"}
+    return {"status": "112"}
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
