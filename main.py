@@ -107,7 +107,7 @@ async def get_num(req: Request):
 
 @app.get("/david")
 async def get_name():
-    return {"name": "david-abarbanel"}
+    return {"name": "david-abar"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
