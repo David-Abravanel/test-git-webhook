@@ -139,7 +139,7 @@ async def github_webhook(request: Request):
 
 @app.post("/test")
 async def github_webhook(request: Request):
-    return 8
+    return 9
 
 # if __name__ == "__main__":
 #     """
