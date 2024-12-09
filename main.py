@@ -109,9 +109,10 @@ async def github_webhook(
     return {"status": "Deployment queued"}
 
 
-@app.get("/יאיר")
+@app.get("/מחזיר-את-מה-שנשלח")
 async def get_num(req: Request):
-    return {"status": "welcome שלום יאיר"}
+    message = req.body()
+    return {"status": f"{message["message"]}"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
