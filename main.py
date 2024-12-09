@@ -109,16 +109,16 @@ async def github_webhook(
     return {"status": "Deployment queued"}
 
 
-@app.get("/test-2")
+@app.get("/יאיר")
 async def get_num(req: Request):
-    return {"status": "david-3"}
+    return {"status": "שלום יאיר"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
 #         "main:app",
 #         host="0.0.0.0",
-#         port=8000,
+#         port=80,
 #         workers=1,
 #         reload=False
 #     )
