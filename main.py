@@ -89,15 +89,6 @@ async def github_webhook(request: Request):
         subprocess.run(
             ["pip", "install", "-r", "requirements.txt"], shell=True, check=True)
 
-        # Restart application
-        status = subprocess.run(
-            ["sudo", "systemctl", "is-active", "yolo_api.service"], capture_output=True, text=True)
-        if status.stdout.strip() == "active":
-            logger.info("Stopping YOLO API service...")
-            subprocess.run(
-                ["sudo", "systemctl", "stop", "yolo_api.service"], check=True)
-            time.sleep(5)
-
         logger.info("Restarting YOLO API service...")
         subprocess.run(
             ["sudo", "systemctl", "restart", "yolo_api"], check=True)
