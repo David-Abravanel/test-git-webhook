@@ -48,9 +48,9 @@ async def deploy_changes():
                 check=True
             )
             logger.info(f"Command output: {result.stdout}")
-            await asyncio.sleep(2)  # Small delay between commands
+            await asyncio.sleep(2)
 
-        await asyncio.sleep(5)  # Longer delay before service reload
+        await asyncio.sleep(5)
 
         subprocess.run(
             ["sudo", "systemctl", "restart", "yolo_api"], check=True)
