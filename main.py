@@ -52,7 +52,8 @@ async def deploy_changes():
 
         await asyncio.sleep(5)  # Longer delay before service reload
 
-        subprocess.run(["sudo", "systemctl", "reload", "yolo_api"], check=True)
+        subprocess.run(
+            ["sudo", "systemctl", "restart", "yolo_api"], check=True)
         logger.info("Deployment completed successfully")
     except subprocess.CalledProcessError as e:
         logger.error(f"Deployment failed: {e.stderr}")
