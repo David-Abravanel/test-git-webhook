@@ -105,14 +105,9 @@ async def get_num(req: Request):
     return {"status": "No payload available"}
 
 
-@app.get("/david")
+@app.get("/david-1234")
 async def get_name():
-    return {"name": "david-abar"}
-
-
-@app.get("/david-1")
-async def get_name():
-    return {"name": "david-1"}
+    return {"name": "ffffffffffffff-1"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
