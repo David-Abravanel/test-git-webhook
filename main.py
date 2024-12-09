@@ -89,6 +89,10 @@ async def github_webhook(
         logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
+
+@app.get("/")
+async def a(req: Request):
+    return 2
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
