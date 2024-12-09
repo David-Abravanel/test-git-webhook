@@ -2,6 +2,7 @@ import json
 import os
 import hmac
 import hashlib
+import time
 import uvicorn
 import subprocess
 from dotenv import load_dotenv
@@ -91,6 +92,7 @@ async def github_webhook(request: Request):
             logger.info("Stopping YOLO API service...")
             subprocess.run(
                 ["sudo", "systemctl", "stop", "yolo_api"], check=True)
+            time.sleep(5)
 
         logger.info("Restarting YOLO API service...")
         subprocess.run(
