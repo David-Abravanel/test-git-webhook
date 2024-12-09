@@ -84,7 +84,7 @@ async def github_webhook(
         commands = [
             ["git", "pull", "origin", "master"],
             ["/home/ubuntu/venv/bin/pip", "install", "-r", "requirements.txt"],
-            ["sudo", "systemctl", "reload", "yolo_api"]
+            ["sudo", "systemctl", "restart", "yolo_api"]
         ]
 
         for cmd in commands:
