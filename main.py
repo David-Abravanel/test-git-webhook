@@ -72,31 +72,20 @@ async def github_webhook(
 
     # Execute deployment steps with comprehensive error handling
     try:
-        deployment_commands = [
+        commands = [
             ["git", "pull", "origin", "master"],
-            ["../venv/bin/activate"],
-            ["pip", "install", "-r", "requirements.txt"],
+            ["/home/ubuntu/venv/bin/pip", "install", "-r", "requirements.txt"],
             ["sudo", "systemctl", "restart", "yolo_api"]
         ]
 
-        for cmd in deployment_commands:
-            result = subprocess.run(
-                cmd,
-                cwd="/home/ubuntu/test-git-webhook",
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            logger.info(f"Command executed: {' '.join(cmd)}")
-            logger.debug(f"Command output: {result.stdout}")
+        for cmd in commands:
+            subprocess.run(
+                cmd, cwd="/home/ubuntu/test-git-webhook", check=True)
 
-        logger.info("Deployment completed successfully")
         return {"status": "Deployment successful"}
 
     except subprocess.CalledProcessError as e:
-        error_msg = f"Deployment failed: {e.stderr}"
-        logger.error(error_msg)
-        raise HTTPException(status_code=500, detail=error_msg)
+        raise HTTPException(status_code=500, detail=f"Deployment failed: {e}")
 
 
 @app.get("/test")
