@@ -66,6 +66,10 @@ async def github_webhook(
         logger.error("Failed to decode JSON payload")
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
+    if Q.full():
+        Q.get()
+    Q.put(payload)
+
     # Check branch
     branch = payload_data.get("ref", "")
     if branch != "refs/heads/master":
@@ -73,10 +77,6 @@ async def github_webhook(
         return {"status": f"Ignored, branch is {branch}"}
 
     # check if the queue is ave..
-    if Q.full():
-        Q.get()
-
-    Q.put(payload)
 
     # Execute deployment steps with comprehensive error handling
     try:
@@ -91,7 +91,7 @@ async def github_webhook(
             subprocess.run(
                 cmd, cwd="/home/ubuntu/test-git-webhook", check=True)
 
-        return {"status": "Deployment successful"}
+        return {"status": "Deployment successfully"}
 
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"Deployment failed: {e}")
@@ -108,6 +108,11 @@ async def get_num(req: Request):
 @app.get("/david-1234")
 async def get_name():
     return {"name": "fffffffffffff-1"}
+
+
+@app.get("/")
+async def get_name():
+    return {"message": "hello world!!!"}
 
 
 # Optional: Production server configuration
