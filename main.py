@@ -113,7 +113,7 @@ async def github_webhook(request: Request):
         )
 
         # Activate virtual environment
-        venv_activate_cmd = "./venv/bin/activate" if os.name != "nt" else ".\\venv\\Scripts\\activate"
+        venv_activate_cmd = "venv/bin/activate" if os.name != "nt" else "venv\\Scripts\\activate"
         logger.info("Activating virtual environment...")
         subprocess.run(venv_activate_cmd, shell=True, check=True)
 
@@ -139,7 +139,7 @@ async def github_webhook(request: Request):
 
 @app.post("/test")
 async def github_webhook(request: Request):
-    return 10
+    return 11
 
 # if __name__ == "__main__":
 #     """
