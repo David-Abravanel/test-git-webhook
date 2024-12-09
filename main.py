@@ -48,7 +48,7 @@ async def deploy_changes():
                 check=True
             )
             logger.info(f"Command output: {result.stdout}")
-            await asyncio.sleep(5)
+            await asyncio.sleep(4)
 
         await asyncio.sleep(15)
 
