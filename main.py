@@ -118,7 +118,7 @@ async def get_num(req: Request):
 
 @app.get("/a")
 async def get_num(req: Request):
-    return {"status": 2}
+    return {"status": 3}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
