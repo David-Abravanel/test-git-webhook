@@ -75,7 +75,6 @@ async def github_webhook(
     # check if the queue is ave..
     if Q.full():
         Q.get()
-
     Q.put(payload)
 
     # Execute deployment steps with comprehensive error handling
@@ -84,7 +83,7 @@ async def github_webhook(
         commands = [
             ["git", "pull", "origin", "master"],
             ["/home/ubuntu/venv/bin/pip", "install", "-r", "requirements.txt"],
-            ["sudo", "systemctl", "restart", "yolo_api"]
+            ["sudo", "systemctl", "reload", "yolo_api"]
         ]
 
         for cmd in commands:
