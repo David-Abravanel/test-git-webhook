@@ -93,7 +93,7 @@ async def github_webhook(
 
 @app.get("/test")
 async def get_num(req: Request):
-    return pyl.pop()
+    return pyl.pop() if len(pyl) > 0 else 1
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
