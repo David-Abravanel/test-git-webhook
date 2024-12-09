@@ -75,6 +75,7 @@ async def github_webhook(
 
     # Execute deployment steps with comprehensive error handling
     try:
+
         commands = [
             ["git", "pull", "origin", "master"],
             ["/home/ubuntu/venv/bin/pip", "install", "-r", "requirements.txt"],
