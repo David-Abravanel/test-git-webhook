@@ -1,5 +1,4 @@
 name: Deploy to Server on Push
-
 on:
   push:
     branches:
@@ -8,13 +7,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20 # הגדרת זמן מקסימלי של 20 דקות לפעולה
 
     steps:
-      # Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Setup SSH for secure connection to the server
       - name: Setup SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -22,29 +20,33 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
         run: |
+          # Setup SSH and known_hosts
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
           ssh-keyscan -H $SERVER_IP >> ~/.ssh/known_hosts
+          echo "SSH Setup Complete"
 
-      # Deploy the application to the production server
       - name: Deploy to Production Server
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
         run: |
-          ssh -i ~/.ssh/id_rsa -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
+          # Run deployment script over SSH with verbose mode for debugging
+          echo "Starting deployment process"
+          ssh -t -i ~/.ssh/id_rsa -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
             set -e
-            echo "Navigating to project directory..."
-            cd test-git-webhook
-            echo "Pulling latest code from master branch..."
-            git pull origin master
-            echo "Activating virtual environment..."
-            source venv/bin/activate
-            echo "Installing dependencies from requirements.txt..."
-            pip install -r requirements.txt
-            echo "Restarting the application service..."
-            sudo systemctl restart yolo_api
+            echo "Step 1: Navigating to project directory..."
+            cd /home/ubuntu/test-git-webhook || exit 1
+            echo "Step 2: Pulling latest code from master branch..."
+            git pull origin master || exit 1
+            echo "Step 3: Activating virtual environment..."
+            source /home/ubuntu/test-git-webhook/venv/bin/activate || exit 1
+            echo "Step 4: Installing dependencies from requirements.txt..."
+            pip install -r /home/ubuntu/test-git-webhook/requirements.txt || exit 1
+            echo "Step 5: Restarting the application service..."
+            sudo systemctl restart yolo_api || exit 1
             echo "Deployment complete."
           EOF
