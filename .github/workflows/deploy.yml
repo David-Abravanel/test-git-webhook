@@ -35,5 +35,5 @@ jobs:
             git pull origin master
             source ../venv/bin/activate
             pip install -r requirements.txt
-            sudo systemctl restart yolo_api.service
+            sudo systemctl restart yolo_api
           EOF
