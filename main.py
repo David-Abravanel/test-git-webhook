@@ -111,8 +111,8 @@ async def github_webhook(
 
 @app.get("/מחזיר-את-מה-שנשלח")
 async def get_num(req: Request):
-    message = req.body()
-    return {"status": f"{message["message"]}"}
+    message = req.body()["message"]
+    return {"status": f"{message[0]**message[1]}"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
