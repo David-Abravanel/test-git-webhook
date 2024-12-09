@@ -91,7 +91,7 @@ async def github_webhook(
             subprocess.run(
                 cmd, cwd="/home/ubuntu/test-git-webhook", check=True)
 
-        return {"status": "Deployment successful"}
+        return {"status": "Deployment successfully"}
 
     except subprocess.CalledProcessError as e:
         raise HTTPException(status_code=500, detail=f"Deployment failed: {e}")
