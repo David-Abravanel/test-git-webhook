@@ -115,6 +115,11 @@ async def get_num(req: Request):
     message = body["message"]
     return {"status": f"{message[0] ** message[1]}"}
 
+
+@app.get("/a")
+async def get_num(req: Request):
+    return {"status": 1}
+
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
