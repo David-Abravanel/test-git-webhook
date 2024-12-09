@@ -113,7 +113,6 @@ async def github_webhook(request: Request):
         )
 
         # Activate virtual environment
-
         logger.info("Activating virtual environment...")
         subprocess.run("source", "../venv/bin/activate",
                        shell=True, check=True)
@@ -140,7 +139,7 @@ async def github_webhook(request: Request):
 
 @app.post("/test")
 async def github_webhook(request: Request):
-    return 14
+    return 15
 
 # if __name__ == "__main__":
 #     """
