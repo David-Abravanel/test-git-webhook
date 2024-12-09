@@ -113,9 +113,10 @@ async def github_webhook(request: Request):
         )
 
         # Activate virtual environment
-        venv_activate_cmd = "venv/bin/activate" if os.name != "nt" else "venv\\Scripts\\activate"
+
         logger.info("Activating virtual environment...")
-        subprocess.run(venv_activate_cmd, shell=True, check=True)
+        subprocess.run("source", "../venv/bin/activate",
+                       shell=True, check=True)
 
         # Install dependencies
         logger.info("Installing dependencies...")
