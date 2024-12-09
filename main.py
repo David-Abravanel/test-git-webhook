@@ -101,6 +101,7 @@ async def github_webhook(
 async def get_num(req: Request):
     if not Q.empty():
         return {"payload": Q.get().decode("utf-8")}
+
     return {"status": "No payload available"}
 
 # Optional: Production server configuration
