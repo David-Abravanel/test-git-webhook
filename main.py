@@ -50,6 +50,7 @@ async def github_webhook(request: Request):
         raise HTTPException(status_code=400, detail="Missing signature header")
 
     webhook_secret = os.getenv('GITHUB_WEBHOOK_SECRET')  # From GitHub settings
+    print("?????????", webhook_secret)
     if not webhook_secret:
         logger.error("Webhook secret not set in environment.")
         raise HTTPException(
