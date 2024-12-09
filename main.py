@@ -111,7 +111,7 @@ async def github_webhook(
 
 @app.get("/יאיר")
 async def get_num(req: Request):
-    return {"status": "שלום יאיר"}
+    return {"status": "welcome שלום יאיר"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
