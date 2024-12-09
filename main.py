@@ -2,121 +2,99 @@ import json
 import os
 import hmac
 import hashlib
-import time
 import uvicorn
 import subprocess
+from typing import Dict, Any
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Header
 import logging
 
 # Initialize FastAPI app
 app = FastAPI(title="YOLO Detection Service")
 
 # Logger configuration
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+# Load environment variables
 load_dotenv()
+
+# Fetch webhook secret with error handling
+WEBHOOK_SECRET = os.getenv('GITHUB_WEBHOOK_SECRET')
+if not WEBHOOK_SECRET:
+    logger.error("GitHub webhook secret is not set")
+    raise ValueError("GitHub webhook secret must be configured")
 
 
 @app.post("/webhook")
-async def github_webhook(request: Request):
+async def github_webhook(
+    request: Request,
+    x_hub_signature_256: str = Header(None)
+):
     """
     Endpoint to handle GitHub webhook for deployment automation.
     """
-    logger.info("Webhook triggered.")
+    # Validate signature first
+    if not x_hub_signature_256:
+        logger.warning("Missing signature header")
+        raise HTTPException(status_code=400, detail="Missing signature header")
 
     # Read payload
     payload = await request.body()
 
-    logger.info("Signature validated. Parsing payload...")
-
-    # Parse JSON payload
-    try:
-        payload_data = json.loads(payload)
-    except json.JSONDecodeError as e:
-        logger.error("Failed to decode JSON payload.")
-        raise HTTPException(status_code=400, detail="Invalid JSON payload")
-
-    # Check branch
-    branch = payload_data.get("ref")
-    print(branch)
-    if branch != "refs/heads/master":
-        logger.info(f"Ignored webhook for branch: {branch}")
-        return {"status": f"Ignored, branch is {branch}"}
-
-    logger.info("Branch validated as 'main'. Starting deployment steps.")
-
-    # Extract GitHub signature
-    github_signature = request.headers.get("X-Hub-Signature-256")
-    if not github_signature:
-        logger.warning("Missing signature header.")
-        raise HTTPException(status_code=400, detail="Missing signature header")
-
-    webhook_secret = os.getenv('GITHUB_WEBHOOK_SECRET')  # From GitHub settings
-    if not webhook_secret:
-        logger.error("Webhook secret not set in environment.")
-        raise HTTPException(
-            status_code=500, detail="Server misconfiguration: missing secret")
-
-    # Validate signature
-    secret = webhook_secret.encode()
+    # Verify GitHub signature
+    secret = WEBHOOK_SECRET.encode()
     expected_signature = "sha256=" + hmac.new(
-        key=secret, msg=payload, digestmod=hashlib.sha256
+        key=secret,
+        msg=payload,
+        digestmod=hashlib.sha256
     ).hexdigest()
 
-    if not hmac.compare_digest(github_signature, expected_signature):
-        logger.warning("Invalid signature.")
+    if not hmac.compare_digest(x_hub_signature_256, expected_signature):
+        logger.warning("Invalid webhook signature")
         raise HTTPException(status_code=403, detail="Invalid signature")
 
-    # Execute deployment steps
+    # Parse JSON payload
+    if payload.get('ref') != "refs/heads/master":
+        return {"status": f"Ignored, branch is {payload.get('ref', '')}"}
+
+    # Execute deployment steps with comprehensive error handling
     try:
-        # Pull latest changes
-        logger.info("Pulling latest changes from repository...")
-        subprocess.run(
+        deployment_commands = [
             ["git", "pull", "origin", "master"],
-            check=True, cwd="/home/ubuntu/test-git-webhook",
-            capture_output=True,
-            text=True
-        )
+            ["../venv/bin/activate"],
+            ["pip", "install", "-r", "requirements.txt"],
+            ["sudo", "systemctl", "restart", "yolo_api"]
+        ]
 
-        # Activate virtual environment
-        logger.info("Activating virtual environment...")
-        subprocess.run("../venv/bin/activate", shell=True, check=True)
+        for cmd in deployment_commands:
+            result = subprocess.run(
+                cmd,
+                cwd="/home/ubuntu/test-git-webhook",
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            logger.info(f"Command executed: {' '.join(cmd)}")
+            logger.debug(f"Command output: {result.stdout}")
 
-        # Install dependencies
-        logger.info("Installing dependencies...")
-        subprocess.run(
-            ["pip", "install", "-r", "requirements.txt"], shell=True, check=True)
-
-        logger.info("Restarting YOLO API service...")
-        subprocess.run(
-            ["sudo", "systemctl", "restart", "yolo_api"], check=True)
-
-        logger.info("Deployment completed successfully.")
+        logger.info("Deployment completed successfully")
+        return {"status": "Deployment successful"}
 
     except subprocess.CalledProcessError as e:
-        logger.error(f"Deployment failed: {str(e)}")
-        raise HTTPException(
-            status_code=500, detail=f"Deployment failed: {str(e)}"
-        )
+        error_msg = f"Deployment failed: {e.stderr}"
+        logger.error(error_msg)
+        raise HTTPException(status_code=500, detail=error_msg)
 
-    return {"status": "Deployment successful"}
-
-
-@app.post("/test")
-async def github_webhook(request: Request):
-    return 3
-
-
+# Optional: Production server configuration
 # if __name__ == "__main__":
-#     """
-#     Run the FastAPI application with Uvicorn server for production.
-#     """
 #     uvicorn.run(
 #         "main:app",
-#         host="0.0.0.0",  # Listen on all network interfaces
+#         host="0.0.0.0",
 #         port=8000,
-#         workers=1,  # Adjust the number of workers as needed
-#         reload=True  # Disable reload in production
+#         workers=1,
+#         reload=False
 #     )
