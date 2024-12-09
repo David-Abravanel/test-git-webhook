@@ -92,7 +92,7 @@ async def github_webhook(
 
 @app.get("/")
 async def a(req: Request):
-    return 2
+    return 3
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
