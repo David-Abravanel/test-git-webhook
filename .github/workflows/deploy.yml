@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20 # הגדרת זמן מקסימלי של 20 דקות לפעולה
+    timeout-minutes: 1
 
     steps:
       - name: Checkout code
@@ -47,6 +47,6 @@ jobs:
             echo "Step 4: Installing dependencies from requirements.txt..."
             pip install -r /home/ubuntu/test-git-webhook/requirements.txt || exit 1
             echo "Step 5: Restarting the application service..."
-            sudo systemctl restart yolo_api || exit 1
+            sudo systemctl restart yolo_api.service || exit 1
             echo "Deployment complete."
           EOF
