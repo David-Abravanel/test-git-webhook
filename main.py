@@ -102,14 +102,14 @@ async def github_webhook(request: Request):
     return 1
 
 
-if __name__ == "__main__":
-    """
-    Run the FastAPI application with Uvicorn server for production.
-    """
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",  # Listen on all network interfaces
-        port=8000,
-        workers=1,  # Adjust the number of workers as needed
-        reload=True  # Disable reload in production
-    )
+# if __name__ == "__main__":
+#     """
+#     Run the FastAPI application with Uvicorn server for production.
+#     """
+#     uvicorn.run(
+#         "main:app",
+#         host="0.0.0.0",  # Listen on all network interfaces
+#         port=8000,
+#         workers=1,  # Adjust the number of workers as needed
+#         reload=True  # Disable reload in production
+#     )
