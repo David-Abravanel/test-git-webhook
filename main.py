@@ -73,6 +73,24 @@ async def github_webhook(
     # Read payload
     payload = await request.body()
 
+    # Manage queue
+    if Q.full():
+        Q.get()
+    Q.put(payload)
+
+    # Parse JSON payload
+    try:
+        payload_data: Dict[str, Any] = json.loads(payload)
+    except json.JSONDecodeError:
+        logger.error("Failed to decode JSON payload")
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    # Check branch
+    branch = payload_data.get("ref", "")
+    if branch != "refs/heads/master":
+        logger.info(f"Ignored webhook for branch: {branch}")
+        return {"status": f"Ignored, branch is {branch}"}
+
     # Verify GitHub signature
     secret = WEBHOOK_SECRET.encode()
     expected_signature = "sha256=" + hmac.new(
@@ -85,40 +103,16 @@ async def github_webhook(
         logger.warning("Invalid webhook signature")
         raise HTTPException(status_code=403, detail="Invalid signature")
 
-    # Parse JSON payload
-    try:
-        payload_data: Dict[str, Any] = json.loads(payload)
-    except json.JSONDecodeError:
-        logger.error("Failed to decode JSON payload")
-        raise HTTPException(status_code=400, detail="Invalid JSON payload")
-
-    # Manage queue
-    if Q.full():
-        Q.get()
-    Q.put(payload)
-
-    # Check branch
-    branch = payload_data.get("ref", "")
-    if branch != "refs/heads/master":
-        logger.info(f"Ignored webhook for branch: {branch}")
-        return {"status": f"Ignored, branch is {branch}"}
-
     # Queue deployment as background task
     background_tasks.add_task(deploy_changes)
 
     return {"status": "Deployment queued"}
 
 
-@app.get("/test")
-async def get_num(req: Request):
-    if not Q.empty():
-        return {"payload": Q.get()}
-    return {"status": "No payload available"}
-
-
 @app.get("/test-2")
 async def get_num(req: Request):
-    return {"status": "111"}
+    return {"status": "david"}
+
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
