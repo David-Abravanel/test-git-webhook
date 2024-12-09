@@ -58,8 +58,17 @@ async def github_webhook(
         raise HTTPException(status_code=403, detail="Invalid signature")
 
     # Parse JSON payload
-    if payload.get('ref') != "refs/heads/master":
-        return {"status": f"Ignored, branch is {payload.get('ref', '')}"}
+    try:
+        payload_data: Dict[str, Any] = json.loads(payload)
+    except json.JSONDecodeError:
+        logger.error("Failed to decode JSON payload")
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    # Check branch
+    branch = payload_data.get("ref", "")
+    if branch != "refs/heads/master":
+        logger.info(f"Ignored webhook for branch: {branch}")
+        return {"status": f"Ignored, branch is {branch}"}
 
     # Execute deployment steps with comprehensive error handling
     try:
@@ -89,10 +98,6 @@ async def github_webhook(
         logger.error(error_msg)
         raise HTTPException(status_code=500, detail=error_msg)
 
-
-@app.get("/")
-async def a(req: Request):
-    return 3
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
