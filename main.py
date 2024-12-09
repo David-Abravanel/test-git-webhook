@@ -99,7 +99,7 @@ async def github_webhook(
 
 @app.get("/test")
 async def get_num(req: Request):
-    if not Q.empty():
+    if not Q.empty(self=Q):
         return {"payload": Q.get().decode("utf-8")}
 
     return {"status": "No payload available"}
