@@ -3,11 +3,12 @@ import os
 import hmac
 import hashlib
 import uvicorn
+import asyncio
 import subprocess
 from queue import Queue
 from typing import Dict, Any
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi import FastAPI, HTTPException, Request, Header, BackgroundTasks
 import logging
 
 # Initialize FastAPI app
@@ -31,14 +32,38 @@ if not WEBHOOK_SECRET:
     raise ValueError("GitHub webhook secret must be configured")
 
 
+async def deploy_changes():
+    try:
+        commands = [
+            ["git", "pull", "origin", "master"],
+            ["/home/ubuntu/venv/bin/pip", "install", "-r", "requirements.txt"]
+        ]
+
+        for cmd in commands:
+            result = subprocess.run(
+                cmd,
+                cwd="/home/ubuntu/test-git-webhook",
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            logger.info(f"Command output: {result.stdout}")
+            await asyncio.sleep(2)  # Small delay between commands
+
+        await asyncio.sleep(5)  # Longer delay before service reload
+
+        subprocess.run(["sudo", "systemctl", "reload", "yolo_api"], check=True)
+        logger.info("Deployment completed successfully")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Deployment failed: {e.stderr}")
+
+
 @app.post("/webhook")
 async def github_webhook(
     request: Request,
+    background_tasks: BackgroundTasks,
     x_hub_signature_256: str = Header(None)
 ):
-    """
-    Endpoint to handle GitHub webhook for deployment automation.
-    """
     # Validate signature first
     if not x_hub_signature_256:
         logger.warning("Missing signature header")
@@ -66,6 +91,7 @@ async def github_webhook(
         logger.error("Failed to decode JSON payload")
         raise HTTPException(status_code=400, detail="Invalid JSON payload")
 
+    # Manage queue
     if Q.full():
         Q.get()
     Q.put(payload)
@@ -76,39 +102,22 @@ async def github_webhook(
         logger.info(f"Ignored webhook for branch: {branch}")
         return {"status": f"Ignored, branch is {branch}"}
 
-    # check if the queue is ave..
+    # Queue deployment as background task
+    background_tasks.add_task(deploy_changes)
 
-    # Execute deployment steps with comprehensive error handling
-    try:
-
-        commands = [
-            ["git", "pull", "origin", "master"],
-            ["/home/ubuntu/venv/bin/pip", "install", "-r", "requirements.txt"],
-            ["sudo", "systemctl", "restart", "yolo_api"]
-        ]
-
-        for cmd in commands:
-            subprocess.run(
-                cmd, cwd="/home/ubuntu/test-git-webhook", check=True)
-
-        return {"status": "Deployment successfully"}
-
-    except subprocess.CalledProcessError as e:
-        raise HTTPException(status_code=500, detail=f"Deployment failed: {e}")
+    return {"status": "Deployment queued"}
 
 
 @app.get("/test")
 async def get_num(req: Request):
     if not Q.empty():
         return {"payload": Q.get()}
-
     return {"status": "No payload available"}
 
 
 @app.get("/test-2")
 async def get_num(req: Request):
     return {"status": "111"}
-
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
