@@ -4,6 +4,7 @@ import hmac
 import hashlib
 import uvicorn
 import subprocess
+from queue import Queue as Q
 from typing import Dict, Any
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, Header
@@ -11,7 +12,6 @@ import logging
 
 # Initialize FastAPI app
 app = FastAPI(title="YOLO Detection Service")
-
 # Logger configuration
 logging.basicConfig(
     level=logging.INFO,
@@ -21,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+Q(maxsize=3)
 
 # Fetch webhook secret with error handling
 WEBHOOK_SECRET = os.getenv('GITHUB_WEBHOOK_SECRET')
@@ -71,7 +73,10 @@ async def github_webhook(
         logger.info(f"Ignored webhook for branch: {branch}")
         return {"status": f"Ignored, branch is {branch}"}
 
-    pyl.append(payload)
+    # check if the queue is ave..
+    if Q.full():
+        Q.get()
+    Q.put(payload)
 
     # Execute deployment steps with comprehensive error handling
     try:
@@ -94,7 +99,9 @@ async def github_webhook(
 
 @app.get("/test")
 async def get_num(req: Request):
-    return pyl.pop() if len(pyl) > 0 else 1
+    if not Q.empty():
+        return {"payload": Q.get().decode("utf-8")}
+    return {"status": "No payload available"}
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
