@@ -3,7 +3,6 @@ import os
 import hmac
 import hashlib
 import time
-import uvicorn
 import subprocess
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
@@ -17,6 +16,38 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+
+
+def stop_service_if_active(service_name):
+    """
+    Stop the service if it is active, and wait until it is fully stopped.
+    """
+    status = subprocess.run(
+        ["sudo", "systemctl", "is-active", service_name], capture_output=True, text=True
+    )
+
+    if status.stdout.strip() == "active":
+        logger.info(f"Stopping {service_name} service...")
+        subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
+
+        # Wait for the service to stop
+        while True:
+            status = subprocess.run(
+                ["sudo", "systemctl", "is-active", service_name], capture_output=True, text=True
+            )
+            if status.stdout.strip() == "inactive":
+                logger.info(f"{service_name} service stopped successfully.")
+                break
+            time.sleep(1)  # Wait 1 second before checking again
+
+
+def restart_service(service_name):
+    """
+    Restart the service after stopping it.
+    """
+    logger.info(f"Restarting {service_name} service...")
+    subprocess.run(["sudo", "systemctl", "restart", service_name], check=True)
+    logger.info(f"{service_name} service restarted successfully.")
 
 
 @app.post("/webhook")
@@ -85,18 +116,9 @@ async def github_webhook(request: Request):
         subprocess.run(
             ["pip", "install", "-r", "requirements.txt"], shell=True, check=True)
 
-        # Restart application
-        status = subprocess.run(
-            ["sudo", "systemctl", "is-active", "yolo_api.service"], capture_output=True, text=True)
-        if status.stdout.strip() == "active":
-            logger.info("Stopping YOLO API service...")
-            subprocess.run(
-                ["sudo", "systemctl", "stop", "yolo_api.service"], check=True)
-            time.sleep(5)
-
-        logger.info("Restarting YOLO API service...")
-        subprocess.run(
-            ["sudo", "systemctl", "restart", "yolo_api"], check=True)
+        # Stop and restart the application
+        stop_service_if_active("yolo_api.service")
+        restart_service("yolo_api.service")
 
         logger.info("Deployment completed successfully.")
 
@@ -112,7 +134,6 @@ async def github_webhook(request: Request):
 @app.post("/test")
 async def github_webhook(request: Request):
     return 7
-
 
 # if __name__ == "__main__":
 #     """
