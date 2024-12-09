@@ -97,6 +97,11 @@ async def github_webhook(request: Request):
     return {"status": "Deployment successful"}
 
 
+@app.post("/test")
+async def github_webhook(request: Request):
+    return 1
+
+
 if __name__ == "__main__":
     """
     Run the FastAPI application with Uvicorn server for production.
