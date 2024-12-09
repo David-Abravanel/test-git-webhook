@@ -33,7 +33,7 @@ jobs:
           ssh -i ~/.ssh/id_rsa -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
             cd test-git-webhook
             git pull origin master
-            source ../venv/bin/activate
+            source venv/bin/activate
             pip install -r requirements.txt
             sudo systemctl restart yolo_api
           EOF
