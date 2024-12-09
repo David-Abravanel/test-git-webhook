@@ -110,11 +110,6 @@ async def get_name():
     return {"name": "fffffffffffff-1"}
 
 
-@app.get("/")
-async def get_name():
-    return {"message": "hello world!!!"}
-
-
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
