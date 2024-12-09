@@ -27,6 +27,7 @@ WEBHOOK_SECRET = os.getenv('GITHUB_WEBHOOK_SECRET')
 if not WEBHOOK_SECRET:
     logger.error("GitHub webhook secret is not set")
     raise ValueError("GitHub webhook secret must be configured")
+pyl = ""
 
 
 @app.post("/webhook")
@@ -70,6 +71,9 @@ async def github_webhook(
         logger.info(f"Ignored webhook for branch: {branch}")
         return {"status": f"Ignored, branch is {branch}"}
 
+    global pyl
+    pyl = payload
+
     # Execute deployment steps with comprehensive error handling
     try:
         commands = [
@@ -90,7 +94,8 @@ async def github_webhook(
 
 @app.get("/test")
 async def get_num(req: Request):
-    return 1
+    global pyl
+    return pyl
 
 # Optional: Production server configuration
 # if __name__ == "__main__":
