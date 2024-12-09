@@ -4,7 +4,7 @@ import hmac
 import hashlib
 import uvicorn
 import subprocess
-from queue import Queue as Q
+from queue import Queue
 from typing import Dict, Any
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, Header
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
-Q(maxsize=3)
+Q = Queue(maxsize=3)
 
 # Fetch webhook secret with error handling
 WEBHOOK_SECRET = os.getenv('GITHUB_WEBHOOK_SECRET')
@@ -99,7 +99,7 @@ async def github_webhook(
 
 @app.get("/test")
 async def get_num(req: Request):
-    if not Q.empty(self=Q):
+    if not Q.empty():
         return {"payload": Q.get().decode("utf-8")}
 
     return {"status": "No payload available"}
