@@ -109,7 +109,7 @@ async def github_webhook(
     return {"status": "Deployment queued"}
 
 
-@app.get("/מחזיר-את-מה-שנשלח")
+@app.get("/מחשב-חזקת-שתי-ספרות")
 async def get_num(req: Request):
     body = await req.json()
     message = body["message"]
