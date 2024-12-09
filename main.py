@@ -105,6 +105,10 @@ async def get_num(req: Request):
     return {"status": "No payload available"}
 
 
+@app.get("/avi")
+async def get_name():
+    return "avi-nankansky"
+
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
