@@ -4,6 +4,7 @@ import hmac
 import hashlib
 import uvicorn
 import subprocess
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 import logging
 
@@ -13,6 +14,8 @@ app = FastAPI(title="YOLO Detection Service")
 # Logger configuration
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+load_dotenv()
 
 
 @app.post("/webhook")
