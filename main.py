@@ -121,7 +121,7 @@ async def get_num(req: Request):
     return {"status": 2}
 
 
-@app.get("/ab")
+@app.get("/test")
 async def get_num(req: Request):
     return {"status": "זה עובד מהר מאוד"}
 
