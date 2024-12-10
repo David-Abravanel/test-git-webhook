@@ -111,7 +111,7 @@ logger = logging.getLogger(__name__)
 
 @app.get("/מחשב-חזקת-שתי-ספרות")
 async def get_num(req: Request):
-    body = await req.json()
+    body = await req.body().json()
     message = body["message"]
     return {"status": f"{message[0] ** message[1]}"}
 
