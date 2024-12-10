@@ -120,6 +120,12 @@ async def get_num(req: Request):
 async def get_num(req: Request):
     return {"status": 2}
 
+
+@app.get("/ab")
+async def get_num(req: Request):
+    return {"status": "זה עובד מהר מאוד"}
+
+
 # Optional: Production server configuration
 # if __name__ == "__main__":
 #     uvicorn.run(
