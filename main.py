@@ -123,7 +123,7 @@ async def get_num(req: Request):
 
 @app.get("/test")
 async def get_num(req: Request):
-    return {"status": "זה עובד מהר מאוד"}
+    return {"status": "hi whatsapp!!"}
 
 
 # Optional: Production server configuration
