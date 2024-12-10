@@ -39,7 +39,7 @@ jobs:
         run: |
           echo "Starting deployment process"
 
-          # Run deployment script over SSH
+          # Run deployment script over SSH with port 22
           ssh -i ~/.ssh/id_rsa -p $SERVER_PORT -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
             set -e
             echo "Navigating to project directory..."
